@@ -84,30 +84,7 @@ int main(int argc, char *argv[]) /* int argc = argument count
                                   * char *argv[] = string array containing the actual arguments passed.*/
 
 {
-
-    /* Create a PID.out for this child process
-    and then set stdout to this PID.out */
-    char filename[64];
-    sprintf(filename, "output/%d.out", getpid());
-
-    if (freopen(filename, "w", stdout) == NULL)
-    {
-        perror("freopen failed");
-        return 1;
-    }
-
-    /* Create a PID.err for this child process
-    and then set stderr to this PID.err */
-    char fileerr[64];
-    sprintf(fileerr, "output/%d.err", getpid());
-
-    if (freopen(fileerr, "w", stderr) == NULL)
-    {
-        perror("freopen failed");
-        return 1;
-    }
-
-    if (argc == 1)
+    if (argc == 1) // If no file was provided
     {
         puts("No file provided, exiting."); // This informs the user that there is no file.
         return 0;
@@ -122,7 +99,7 @@ int main(int argc, char *argv[]) /* int argc = argument count
 
     int i = 0, lnum = 0;
     char namebuf[MLINE] = {0}; // This buffer temporarily stores a line in the file.
-    char *names[MSIZE] = {0};  // This stores all the names and their occurences in the file.
+    char *names[MSIZE] = {0};  // TODO: Move to shell1.c. This stores all the names and their occurences in the file.
     while (fgets(namebuf, MLINE, f))
     {
         lnum++;
