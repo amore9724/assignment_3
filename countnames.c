@@ -59,6 +59,7 @@ void ncount(char *arr[], char *nused[], int count[])
     }
 }
 
+
 void nprinter(char *nused[], int count[])
 { // Prints a string and the amount of times it occurs.
     for (int i = 0; nused[i] != 0; i++)
@@ -118,7 +119,14 @@ int main(int argc, char *argv[]) /* int argc = argument count
     int count[MNAME] = {0};   // Contains the number of times a name occurs in the file.
     char *nused[MNAME] = {0}; // Contains the number of unique names used in the file.
     ncount(names, nused, count);
-    nprinter(nused, count);
+
+    for (int i = 0; nused[i] != 0; i++) { // Send data to parent
+        NameCountData ncd;
+        strcpy(ncd.name, nused[i]);
+        ncd.count = count[i];
+        write_struct_namecount(STDOUT_FILENO, &ncd);
+    }
+
     fclose(stdout);
     fclose(stderr);
     clnup(names, nused); // This will free the allocated memory.
