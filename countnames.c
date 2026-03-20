@@ -1,13 +1,10 @@
-/*
-This ver is pasted from assignment 2
-*/
 #include <sys/types.h>
 #include <unistd.h>
 #include "A3.h"
 
 
 /*
- *   NOTE: A history of this code is available on a private GitHub repository.
+ *   NOTE: A history of this code is available on a GitHub repository.
  *   This repository can be made available upon request.
  */
 
@@ -30,7 +27,7 @@ int main(int argc, char *argv[]) /* int argc = argument count
         return 0;
     }
 
-    FILE *f = fopen(argv[1], "r");
+    FILE *f = fopen(argv[1], "r");      // Opens file to read from.
     if (f == NULL)
     {
         fprintf(stderr, "Error: Child %d could not open file %s and is exiting.\n", getpid(), argv[1]);
@@ -39,7 +36,7 @@ int main(int argc, char *argv[]) /* int argc = argument count
 
     int i = 0, lnum = 0;
     char namebuf[MLINE] = {0}; // This buffer temporarily stores a line in the file.
-    char *names[MSIZE] = {0};  // TODO: Move to shell1.c. This stores all the names and their occurences in the file.
+    char *names[MSIZE] = {0};  // This stores all the names and their occurences in the file.
     while (fgets(namebuf, MLINE, f))
     {
         lnum++;
@@ -57,12 +54,12 @@ int main(int argc, char *argv[]) /* int argc = argument count
 
     int count[MNAME] = {0};   // Contains the number of times a name occurs in the file.
     char *nused[MNAME] = {0}; // Contains the number of unique names used in the file.
-    ncount(names, nused, count);
-    for (int i = 0; nused[i] != 0; i++) { // Send data to parent
-        NameCountData ncd;
-        strcpy(ncd.name, nused[i]);
-        ncd.count = count[i];
-        write_struct_namecount(STDOUT_FILENO, &ncd);
+    ncount(names, nused, count);    // Counts the names used and sends it to the arrays.
+    for (int i = 0; nused[i] != 0; i++) { // Sends data to parent
+        NameCountData ncd;                 // Initializes communication header.
+        strcpy(ncd.name, nused[i]);         // Sets the name to be sent.
+        ncd.count = count[i];               // Sets the count to be sent.
+        write_struct_namecount(STDOUT_FILENO, &ncd);    // Sends the name count to parent.
     }
     fflush(stdout);
     clnup(names, nused); // This will free the allocated memory.

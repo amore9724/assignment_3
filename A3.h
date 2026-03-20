@@ -6,11 +6,14 @@
 #define MSIZE 10001 // Maximum number of lines in the program(empty or non empty)
 #define MNAME 101   // Maximum number of names.
 #define MLINE 31    // Maximum number of characters in a line.
+#define MAXLINE 4096    // This is the
+#define PROGRAMNAME "countnames"    // This is the name of the program to be executed.
+#define MAXARGS 100
 
 typedef struct {
     char name[31];
     int count;
-} NameCountData;
+} NameCountData;    // Contains the name and the amount of time it appears in a file.
 
 typedef enum {
     TYPE_NAMECOUNT,
@@ -20,7 +23,7 @@ typedef enum {
 typedef struct {
     MessageType type;
     size_t size; // Size of the following payload
-} MessageHeader;
+} MessageHeader;    // Message to be sent through pipes.
 
 int check_in(char *a, char *b[]);
 void nprinter(char *nused[], int count[]);

@@ -4,27 +4,25 @@
 #include "A3.h"
 
 /*
-*   NOTE: A history of this code is available on a private GitHub repository.
+*   NOTE: A history of this code is available on a GitHub repository.
 *   This repository can be made available upon request.
 */
 
-#define MAXLINE 4096
-#define PROGRAMNAME "countnames"
-
-void read_from_pipe(int fd, char **arr, int *nused, int *count) {
+void read_from_pipe(int fd, char **arr, int *pos, int *count) { // This function reads the data from the pipe.
     MessageHeader header;
-	while (read(fd, &header, sizeof(header)) > 0) {
-		int i;
-		switch (header.type) {
+	while (read(fd, &header, sizeof(header)) > 0) {	// Reads from the message header sent by child process.
+
+		switch (header.type) {	// This switches based on what the header type is.
 			case TYPE_NAMECOUNT: {
-				NameCountData dataNC;
-				read(fd, &dataNC, sizeof(NameCountData));
+				NameCountData dataNC;				// Initializes struct to be used when reading data from pipe.
+				read(fd, &dataNC, sizeof(NameCountData)); // Reads the data.
+				int i;
 				if ((i = check_in(dataNC.name, arr)) != -1) {
-					count[i] += dataNC.count;
+					count[i] += dataNC.count;		// This adds the count to the name if the name is already there.
 				} else {
-					arr[*nused] = strdup(dataNC.name);  // add name to array
-					count[*nused] = dataNC.count;        // set its count
-					(*nused)++;                          // advance to next slot
+					arr[*pos] = strdup(dataNC.name); // This adds a name to the array.
+					count[*pos] = dataNC.count; // This sets the count to the name in the array.
+					(*pos)++;					  // This moves the pointer to the next slot.
 				}
 				break;
 			}
@@ -44,10 +42,11 @@ int main(int argc, char* argv[])
 {
 	//raise(SIGSTOP); // Comment if unneeded, this is for debugging purposes.
 	char	buf[MAXLINE];
-	char *args[100];
+	char *args[MAXARGS];
 
 	printf("%% ");	/* print prompt (printf requires %% to print %) */
-	while (fgets(buf, MAXLINE, stdin) != NULL) {
+
+	while (fgets(buf, MAXLINE, stdin) != NULL) {	// Read argument from stdin.
 		if (buf[strlen(buf) - 1] == '\n')
 			buf[strlen(buf) - 1] = 0; /* replace newline with null */
 
@@ -60,40 +59,53 @@ int main(int argc, char* argv[])
 		}
 		args[i] = NULL;
 
-		char **nused = calloc(2048, sizeof(char*));	// Array of names
-		int *count = calloc(2048, sizeof(int));     // Total count array
+
+		/* Set up the arrays to be used later by the program */
+		char **nused = calloc(MAXLINE, sizeof(char*));	// Array of names
+		int *count = calloc(MAXLINE, sizeof(int));     // Total count array
 		int nused_count = 0;
-		// for each input file
-		// fork and then exec the countnames program with the file as an argument
+
+		// For each input file, fork and exec the countnames program with the file as the argument.
+
 		int fds[MSIZE][2];     // Stores two ends of parent pipe
-		for (int j = 1; j < i; j++) {
+
+
+		for (int j = 1; j < i; j++) {	// Loop where all processes are forked.
 			if (pipe(fds[j]) == -1) {	// Create pipe
 				perror("Error creating pipe");	// Exit program if pipe creation failed
 				return 1;
 			}
-			pid_t pid = fork(); // Create new process for file
+			pid_t pid = fork(); // Create new process for each file.
+
 			if(pid == 0)	// Line of code for the child to execute.
 			{
-				close(fds[j][0]);
-				dup2(fds[j][1], STDOUT_FILENO);	// Set stdout to the write end of the pipe temporarily.
-				close(fds[j][1]);
-				char *child_argv[] = {args[0], args[j], NULL};
+				close(fds[j][0]);	// Closes unused end of pipe.
+				dup2(fds[j][1], STDOUT_FILENO);	// Set stdout to the write end of the pipe.
+				close(fds[j][1]);	// Closes write end of pipe.
+				char *child_argv[] = {args[0], args[j], NULL};	// Creates arguments to pass to execvp for child process to execute.
 				execvp(child_argv[0], child_argv);	// Execute countnames.c
+
+				/* The child process should not get here, if it did, then something is wrong. */
+
 				perror("execvp failed");
 				exit(1);
 			}
-			close(fds[j][1]);
+			close(fds[j][1]);	// Closes final write end of pipe.
 		}
+
+		// This is for the parent program to read the data sent to it through the pipe.
 		for (int j = 1; j < i; j++) {
-			read_from_pipe(fds[j][0], nused, &nused_count, count);
-			close(fds[j][0]);
+			read_from_pipe(fds[j][0], nused, &nused_count, count);	// Reads from the read end of the pipe at j.
+			close(fds[j][0]);											// Closes the read end of the pipe at j.
 		}
-		/* parent wait until all children are finished */
+
+		/* Parent waits until all children are finished */
+
 		while (wait(NULL) > 0) {}
 		printf("%% ");
-		nprinter(nused, count);
-		free(nused);
-		free(count);
+		nprinter(nused, count);	// Prints the names to output.
+		free(nused);			// Removes nused array.
+		free(count);			// Removes count array.
 	}
 	exit(0);
 }
