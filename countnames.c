@@ -5,9 +5,7 @@ This ver is pasted from assignment 2
 #include <unistd.h>
 #include "A3.h"
 
-#define MSIZE 10001 // Maximum number of lines in the program(empty or non empty)
-#define MNAME 101   // Maximum number of names.
-#define MLINE 31    // Maximum number of characters in a line.
+
 /*
  *   NOTE: A history of this code is available on a private GitHub repository.
  *   This repository can be made available upon request.
@@ -60,15 +58,13 @@ int main(int argc, char *argv[]) /* int argc = argument count
     int count[MNAME] = {0};   // Contains the number of times a name occurs in the file.
     char *nused[MNAME] = {0}; // Contains the number of unique names used in the file.
     ncount(names, nused, count);
-
     for (int i = 0; nused[i] != 0; i++) { // Send data to parent
         NameCountData ncd;
         strcpy(ncd.name, nused[i]);
         ncd.count = count[i];
         write_struct_namecount(STDOUT_FILENO, &ncd);
     }
-    fclose(stdout);
-    fclose(stderr);
+    fflush(stdout);
     clnup(names, nused); // This will free the allocated memory.
     return 0;
 }
