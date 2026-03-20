@@ -1,7 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
-#include <string.h>
 #include <sys/wait.h>
 #include "A3.h"
 
@@ -25,7 +23,7 @@ void read_from_pipe(int fd, char **arr, int *count) {
         	int i;
             NameCountData dataNC;
             read(fd, &dataNC, header.size);
-        	if (i = check_in(dataNC.name, arr) != -1) {
+        	if ((i = check_in(dataNC.name, arr)) != -1) {
 				count[i] += dataNC.count;
         	} else {
         		count[i] = dataNC.count;
@@ -64,7 +62,7 @@ int main(int argc, char* argv[])
 		args[i] = NULL;
 
 	    if (pipe(fd) == -1) {	// Create pipe
-		    perror("ERROR CREATING PIPE");	// Exit program if pipe creation failed
+		    perror("Error creating pipe");	// Exit program if pipe creation failed
 	    	return 1;
 	    }
 
