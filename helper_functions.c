@@ -33,8 +33,6 @@ void nprinter(char *nused[], int count[])
     {
         printf("%s: %d\n", nused[i], count[i]);
     }
-    fflush(stdout);
-    fflush(stderr);
 }
 
 void ncount(char *arr[], char *nused[], int count[])

@@ -53,7 +53,6 @@ int main(int argc, char* argv[])
    int count[MAXLINE] = {0};
    int nused_count = 0;
     while (fgets(buf, MAXLINE, stdin) != NULL) {   // Read argument from stdin.
-       fflush(stdout);
        memset(nused, 0, sizeof(nused));
        memset(count, 0, sizeof(count));
        nused_count = 0;
@@ -116,7 +115,6 @@ int main(int argc, char* argv[])
        nprinter(nused, count);    // Prints the names to output.
        fflush(stdout);
        fflush(stderr);
-
        printf("%% ");
     }
    for (int i = 0; nused[i] != 0; i++) {
