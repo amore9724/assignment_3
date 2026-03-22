@@ -56,12 +56,13 @@ int main(int argc, char *argv[]) /* int argc = argument count
     char *nused[MNAME] = {0}; // Contains the number of unique names used in the file.
     ncount(names, nused, count);    // Counts the names used and sends it to the arrays.
     for (int i = 0; nused[i] != 0; i++) { // Sends data to parent
-        NameCountData ncd;                 // Initializes communication header.
-        strcpy(ncd.name, nused[i]);         // Sets the name to be sent.
-        ncd.count = count[i];               // Sets the count to be sent.
+        NameCountData ncd;                 // Initializes NameCountData struct to send to parent.
+        strcpy(ncd.name, nused[i]);         // Copies the current name into the communication header.
+        ncd.count = count[i];               // Sets the count of the current name to be set.
         write_struct_namecount(STDOUT_FILENO, &ncd);    // Sends the name count to parent.
     }
-    fflush(stdout);
+
+    fflush(stdout);     // Flushes stdout to prevent further issues.
     clnup(names, nused); // This will free the allocated memory.
     return 0;
 }
